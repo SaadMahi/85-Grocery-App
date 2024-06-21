@@ -11,7 +11,7 @@ const Slider = ({ sliderList }) => {
   return (
     <Carousel>
       <CarouselContent>
-        {sliderList.map((slider, index) => (
+        {sliderList?.map((slider, index) => (
           <CarouselItem key={index}>
             <Image
               src={
