@@ -1,5 +1,14 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import ProductItemDetail from "./ProductItemDetail";
 
 const ProductItem = ({ product }) => {
   return (
@@ -28,12 +37,24 @@ const ProductItem = ({ product }) => {
         </h2>
       </div>
 
-      <Button
-        variant="outline"
-        className="text-primary hover:bg-primary hover:text-white"
-      >
-        Add to cart
-      </Button>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button
+            variant="outline"
+            className="text-primary hover:bg-primary hover:text-white"
+          >
+            Add to cart
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogDescription>
+              <ProductItemDetail product={product} />
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
