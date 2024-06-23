@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import GlobalApi from "../_utils/GlobalApi";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 const Header = () => {
   const [categoryList, setCategoryList] = useState([]);
@@ -57,27 +58,25 @@ const Header = () => {
             <DropdownMenuSeparator />
 
             {categoryList.map((category, index) => (
-              <DropdownMenuItem
-                key={index}
-                className="flex cursor-pointer gap-2"
-              >
-                <Image
-                  unoptimized={true}
-                  src={
-                    process.env.NEXT_PUBLIC_BACKEND_BASE_URL +
-                    category.attributes.icon.data[0].attributes.url
-                  }
-                  alt="icon"
-                  width={30}
-                  height={30}
-                />
-                <h1 className="text-lg">{category.attributes.name}</h1>
-              </DropdownMenuItem>
+              <Link href={"/product-category/" + category?.attributes?.name}>
+                <DropdownMenuItem
+                  key={index}
+                  className="flex cursor-pointer gap-2"
+                >
+                  <Image
+                    unoptimized={true}
+                    src={
+                      process.env.NEXT_PUBLIC_BACKEND_BASE_URL +
+                      category.attributes.icon.data[0].attributes.url
+                    }
+                    alt="icon"
+                    width={30}
+                    height={30}
+                  />
+                  <h1 className="text-lg">{category.attributes.name}</h1>
+                </DropdownMenuItem>
+              </Link>
             ))}
-
-            {/* <DropdownMenuItem>Billing</DropdownMenuItem>
-            <DropdownMenuItem>Team</DropdownMenuItem>
-            <DropdownMenuItem>Subscription</DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
 
