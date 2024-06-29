@@ -3,6 +3,7 @@
 import GlobalApi from "@/app/_utils/GlobalApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { LoaderIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,6 +13,7 @@ import { toast } from "sonner";
 const SignIn = () => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
+  const [loader, setLoader] = useState(false);
 
   const router = useRouter();
 
@@ -23,17 +25,19 @@ const SignIn = () => {
   }, []);
 
   const onSignIn = () => {
+    setLoader(true);
     GlobalApi.signIn(email, password).then(
       (res) => {
         sessionStorage.setItem("user", JSON.stringify(res.data));
         sessionStorage.setItem("jwt", res.data.jwt);
 
         router.push("/");
-
+        setLoader(false);
         toast("Login Successfull");
       },
       (e) => {
-        toast("Server Error | ", e.message);
+        setLoader(false);
+        toast(e?.response?.data?.error?.message);
       },
     );
   };
@@ -70,7 +74,7 @@ const SignIn = () => {
             type="password"
           />
           <Button onClick={() => onSignIn()} disabled={!(email || password)}>
-            Sign In
+            {loader ? <LoaderIcon className="animate-spin" /> : "Sign In"}
           </Button>
           <p>
             Don't have an account ?{" "}

@@ -1,7 +1,7 @@
 const { default: axios } = require("axios");
 
 const axiosClient = axios.create({
-  baseURL: "http://172.20.10.4:1337/api",
+  baseURL: "http://192.168.29.111:1337/api",
 });
 
 // Get Data
@@ -35,6 +35,22 @@ const signIn = (email, password) =>
     password: password,
   });
 
+const addToCart = (data, jwt) =>
+  axiosClient.post("/user-carts", data, {
+    headers: {
+      Authorization: "Bearer " + jwt,
+    },
+  });
+
+const getCartItems = (userId, jwt) =>
+  axiosClient
+    .get(`user-carts?filters[userId][$eq]=${userId}&populate=*`, {
+      headers: {
+        Authorization: "Bearer " + jwt,
+      },
+    })
+    .then((res) => res.data.data);
+
 export default {
   getCategory,
   getSliders,
@@ -43,4 +59,6 @@ export default {
   getProductsByCategory,
   registerUser,
   signIn,
+  addToCart,
+  getCartItems,
 };

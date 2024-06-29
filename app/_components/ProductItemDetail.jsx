@@ -1,12 +1,19 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ShoppingBasket } from "lucide-react";
+import { Loader2Icon, ShoppingBasket } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useContext, useState } from "react";
+import GlobalApi from "../_utils/GlobalApi";
+import { toast } from "sonner";
+import { UpdateCartContext } from "../_context/UpdateCartContext";
 
 const ProductItemDetail = ({ product }) => {
-  console.log(product?.attributes?.sellingPrice);
+  const { updateCart, setUpdateCart } = useContext(UpdateCartContext);
+
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const [productTotalPrice, setProductTotalPrice] = useState(
     product?.attributes?.sellingPrice
@@ -15,6 +22,40 @@ const ProductItemDetail = ({ product }) => {
   );
 
   const [quantity, setQuantity] = useState(1);
+
+  const jwt = sessionStorage.getItem("jwt");
+  const user = JSON.parse(sessionStorage.getItem("user"));
+
+  const addToCart = () => {
+    setLoading(true);
+    if (!jwt) {
+      setLoading(false);
+      router.push("/sign-in");
+      return;
+    } else {
+      const data = {
+        data: {
+          quantity: quantity,
+          amount: (quantity * productTotalPrice).toFixed(2),
+          products: product.id,
+          users_permissions_user: user.user.id,
+          userId: user.user.id,
+        },
+      };
+      GlobalApi.addToCart(data, jwt).then(
+        (res) => {
+          console.log(res.data.data);
+          toast("Added to Cart");
+          setUpdateCart(!updateCart);
+          setLoading(false);
+        },
+        (e) => {
+          setLoading(false);
+          toast("Error while adding into cart");
+        },
+      );
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 bg-white p-7 text-black md:grid-cols-2">
@@ -68,9 +109,13 @@ const ProductItemDetail = ({ product }) => {
               = ₹{(quantity * productTotalPrice).toFixed(2)}
             </p>
           </div>
-          <Button className="flex gap-3">
+          <Button
+            disabled={loading}
+            onClick={() => addToCart()}
+            className="flex gap-3"
+          >
             <ShoppingBasket />
-            Add to cart
+            {loading ? <Loader2Icon className="animate-spin" /> : "Add to cart"}
           </Button>
         </div>
         <h2>
