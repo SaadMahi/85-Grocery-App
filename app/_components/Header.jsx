@@ -5,6 +5,16 @@ import { CircleUserRound, LayoutGrid, Search, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 
 import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -17,6 +27,8 @@ import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { UpdateCartContext } from "../_context/UpdateCartContext";
+import CartItemList from "./CartItemList";
+import { toast } from "sonner";
 
 const Header = () => {
   const { updateCart } = useContext(UpdateCartContext);
@@ -25,6 +37,9 @@ const Header = () => {
 
   const [categoryList, setCategoryList] = useState([]);
   const [totalCartItem, setTotalCartItem] = useState(0);
+  const [cartItemList, setCartItemList] = useState([]);
+
+  console.log(cartItemList);
 
   const getCategoryList = () => {
     GlobalApi.getCategory().then((res) => {
@@ -57,10 +72,30 @@ const Header = () => {
 
   // get cart items
   const getCartItems = async () => {
-    const cartItemList = await GlobalApi.getCartItems(user?.user.id, jwt);
-    console.log(cartItemList);
-    setTotalCartItem(cartItemList?.length);
+    const cartItemList_ = await GlobalApi.getCartItems(
+      user?.user?.id,
+      jwt,
+    ).catch((e) => console.log(e));
+    setTotalCartItem(cartItemList_?.length || 0);
+    setCartItemList(cartItemList_);
   };
+
+  // delete items from cart
+  const onDeleteItem = (id) => {
+    GlobalApi.deleteCartItem(id, jwt).then((res) => {
+      getCartItems();
+      toast("Item removed !");
+    });
+  };
+
+  // sub total in cart
+  const [subtotal, setSubtotal] = useState(0);
+
+  useEffect(() => {
+    let total = 0;
+    cartItemList?.forEach((element) => (total = total + element.amount));
+    setSubtotal(total.toFixed(2));
+  }, [cartItemList]);
 
   return (
     <>
@@ -131,10 +166,43 @@ const Header = () => {
           </div>
 
           <div className="flex items-center gap-5">
-            <h2 className="flex gap-2 text-lg">
-              <ShoppingBag />
-              {totalCartItem}
-            </h2>
+            <Sheet>
+              <SheetTrigger>
+                <h2 className="flex items-center gap-2 text-lg">
+                  <ShoppingBag size={30} />
+
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full border bg-primary text-white">
+                    {totalCartItem}
+                  </span>
+                </h2>
+              </SheetTrigger>
+              <SheetContent>
+                <SheetHeader className="py-4">
+                  <SheetTitle className="rounded-md bg-primary p-2 font-bold text-white">
+                    My Cart
+                  </SheetTitle>
+                  <SheetDescription>
+                    <CartItemList
+                      cartItemList={cartItemList}
+                      onDeleteItem={onDeleteItem}
+                    />
+                  </SheetDescription>
+                </SheetHeader>
+                <SheetClose asChild>
+                  <div className="absolute bottom-5 flex w-[90%] flex-col">
+                    <h2 className="flex justify-between text-lg font-bold">
+                      Subtotal <span>₹{subtotal}</span>
+                    </h2>
+                    <Button
+                      onClick={() => router.push(jwt ? "/checkout" : "sign-in")}
+                    >
+                      Checkout
+                    </Button>
+                  </div>
+                </SheetClose>
+              </SheetContent>
+            </Sheet>
+
             {!isLogin ? (
               <Link href="/sign-in">
                 <Button>Login</Button>
