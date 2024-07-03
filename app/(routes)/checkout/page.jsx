@@ -74,6 +74,7 @@ const Checkout = () => {
             />
             <Input
               onChange={(e) => setEmail(e.target.value)}
+              type="email"
               placeholder="Email"
             />
           </div>
