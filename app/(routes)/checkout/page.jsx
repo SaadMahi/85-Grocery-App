@@ -15,6 +15,13 @@ const Checkout = () => {
   const [totalCartItem, setTotalCartItem] = useState(0);
   const [cartItemList, setCartItemList] = useState([]);
 
+  // form handling
+  const [username, setUsername] = useState();
+  const [email, setEmail] = useState();
+  const [phone, setPhone] = useState();
+  const [zip, setZip] = useState();
+  const [address, setAddress] = useState();
+
   // get cart items
   useEffect(() => {
     if (!jwt) {
@@ -51,8 +58,6 @@ const Checkout = () => {
     return totalAmount;
   };
 
-  console.log(calcTotalAmount());
-
   return (
     <section>
       <h2 className="mx-5 rounded-md bg-primary p-3 text-center text-xl font-bold text-white">
@@ -63,15 +68,27 @@ const Checkout = () => {
         <div className="mx-20 md:col-span-2">
           <h2 className="text-3xl font-bold">Billing Details</h2>
           <div className="mt-3 grid grid-cols-2 gap-10">
-            <Input placeholder="Name" />
-            <Input placeholder="Email" />
+            <Input
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Name"
+            />
+            <Input
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email"
+            />
           </div>
           <div className="mt-3 grid grid-cols-2 gap-10">
-            <Input placeholder="Phone" />
-            <Input placeholder="Zip" />
+            <Input
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Phone"
+            />
+            <Input onChange={(e) => setZip(e.target.value)} placeholder="Zip" />
           </div>
           <div className="mt-3">
-            <Input placeholder="Address" />
+            <Input
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Address"
+            />
           </div>
         </div>
 
