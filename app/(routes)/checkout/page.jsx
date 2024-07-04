@@ -3,7 +3,7 @@
 import GlobalApi from "@/app/_utils/GlobalApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowBigRight } from "lucide-react";
+import { PayPalButtons } from "@paypal/react-paypal-js";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -21,6 +21,9 @@ const Checkout = () => {
   const [phone, setPhone] = useState();
   const [zip, setZip] = useState();
   const [address, setAddress] = useState();
+
+  // carts final total amount
+  const [totalAmount, setTotalAmount] = useState();
 
   // get cart items
   useEffect(() => {
@@ -45,6 +48,13 @@ const Checkout = () => {
   useEffect(() => {
     let total = 0;
     cartItemList?.forEach((element) => (total = total + element.amount));
+    const cartValue = Number(subtotal);
+    const gst = cartValue * 0.09;
+    const totalAmount = (cartValue + gst + (cartValue < 300 ? 120 : 0)).toFixed(
+      2,
+    );
+    setTotalAmount(totalAmount);
+
     setSubtotal(total.toFixed(2));
   }, [cartItemList]);
 
@@ -116,9 +126,21 @@ const Checkout = () => {
               Total : <span>₹{calcTotalAmount()}</span>
             </h2>
 
-            <Button>
-              Payment <ArrowBigRight />
-            </Button>
+            <PayPalButtons
+              style={{ layout: "horizontal" }}
+              createOrder={(data, actions) => {
+                return actions.order.create({
+                  purchase_units: [
+                    {
+                      amount: {
+                        value: totalAmount,
+                        currency_code: "USD      ",
+                      },
+                    },
+                  ],
+                });
+              }}
+            />
           </div>
         </div>
       </div>

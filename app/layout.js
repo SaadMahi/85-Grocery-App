@@ -7,6 +7,7 @@ import Footer from "./_components/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import { UpdateCartContext } from "./_context/UpdateCartContext";
 import { useState } from "react";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 
 const outfit = Outfit({ subsets: ["latin"] });
 
@@ -19,15 +20,19 @@ export default function RootLayout({ children }) {
   const [updateCart, setUpdateCart] = useState(false);
 
   return (
-    <html lang="en">
-      <body className={outfit.className}>
-        <UpdateCartContext.Provider value={{ updateCart, setUpdateCart }}>
-          <Header />
-          <main className="mx-auto max-w-[1200px]">{children}</main>
-          <Toaster />
-          <Footer />
-        </UpdateCartContext.Provider>
-      </body>
-    </html>
+    <PayPalScriptProvider
+      options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
+    >
+      <html lang="en">
+        <body className={outfit.className}>
+          <UpdateCartContext.Provider value={{ updateCart, setUpdateCart }}>
+            <Header />
+            <main className="mx-auto max-w-[1200px]">{children}</main>
+            <Toaster />
+            <Footer />
+          </UpdateCartContext.Provider>
+        </body>
+      </html>
+    </PayPalScriptProvider>
   );
 }
