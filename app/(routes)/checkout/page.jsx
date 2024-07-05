@@ -1,7 +1,6 @@
 "use client";
 
 import GlobalApi from "@/app/_utils/GlobalApi";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PayPalButtons } from "@paypal/react-paypal-js";
 import { useRouter } from "next/navigation";
@@ -48,25 +47,27 @@ const Checkout = () => {
   useEffect(() => {
     let total = 0;
     cartItemList?.forEach((element) => (total = total + element.amount));
-    const cartValue = Number(subtotal);
+    const cartValue = total;
     const gst = cartValue * 0.09;
     const totalAmount = (cartValue + gst + (cartValue < 300 ? 120 : 0)).toFixed(
       2,
     );
-    setTotalAmount(totalAmount);
+
+    const currencyConvertor = async (convertValue) => {
+      const res = await fetch("https://www.floatrates.com/daily/inr.json");
+      const data = await res.json();
+      const usdRate = data.usd.rate;
+      const inrToUsdValue = Math.trunc(totalAmount * usdRate);
+      setTotalAmount(inrToUsdValue);
+    };
+
+    currencyConvertor(totalAmount);
 
     setSubtotal(total.toFixed(2));
   }, [cartItemList]);
 
-  // final total value
-  const calcTotalAmount = () => {
-    const cartValue = Number(subtotal);
-    const gst = cartValue * 0.09;
-    const totalAmount = (cartValue + gst + (cartValue < 300 ? 120 : 0)).toFixed(
-      2,
-    );
-    return totalAmount;
-  };
+  // when user pays
+  const onApprove = (data) => {};
 
   return (
     <section>
@@ -123,18 +124,20 @@ const Checkout = () => {
             <hr></hr>
 
             <h2 className="flex justify-between font-bold">
-              Total : <span>₹{calcTotalAmount()}</span>
+              Total : <span>${totalAmount}</span>
             </h2>
 
             <PayPalButtons
+              forceReRender={[totalAmount]}
               style={{ layout: "horizontal" }}
+              onApprove={onApprove}
               createOrder={(data, actions) => {
                 return actions.order.create({
                   purchase_units: [
                     {
                       amount: {
                         value: totalAmount,
-                        currency_code: "USD      ",
+                        currency_code: "USD",
                       },
                     },
                   ],
