@@ -39,8 +39,6 @@ const Header = () => {
   const [totalCartItem, setTotalCartItem] = useState(0);
   const [cartItemList, setCartItemList] = useState([]);
 
-  console.log(cartItemList);
-
   const getCategoryList = () => {
     GlobalApi.getCategory().then((res) => {
       setCategoryList(res.data.data);
@@ -102,7 +100,7 @@ const Header = () => {
       {showHeader && (
         <header className="flex justify-between p-5 shadow-sm">
           <div className="flex items-center gap-8">
-            <div className="flex items-center">
+            <Link href="/" className="flex items-center">
               <Image
                 src="/logo.svg"
                 width={50}
@@ -116,7 +114,7 @@ const Header = () => {
                 </span>
                 <span className="text-xl font-bold text-primary">Store</span>
               </div>
-            </div>
+            </Link>
 
             <DropdownMenu>
               <DropdownMenuTrigger>
@@ -220,7 +218,11 @@ const Header = () => {
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>My Order</DropdownMenuItem>
+
+                  <Link href="/my-order">
+                    <DropdownMenuItem>My Order</DropdownMenuItem>
+                  </Link>
+
                   <DropdownMenuItem onClick={() => onSignOut()}>
                     Logout
                   </DropdownMenuItem>
