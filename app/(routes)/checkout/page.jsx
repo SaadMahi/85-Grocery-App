@@ -1,10 +1,12 @@
 "use client";
 
 import GlobalApi from "@/app/_utils/GlobalApi";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PayPalButtons } from "@paypal/react-paypal-js";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const Checkout = () => {
   const user = JSON.parse(sessionStorage.getItem("user"));
@@ -67,7 +69,36 @@ const Checkout = () => {
   }, [cartItemList]);
 
   // when user pays
-  const onApprove = (data) => {};
+  const onApprove = (data) => {
+    console.log(data);
+
+    console.log(cartItemList);
+
+    const payload = {
+      data: {
+        paymentId: data.paymentId.toString(),
+        totalOrderAmount: totalAmount,
+        username: username,
+        email: email,
+        phone: phone,
+        zip: zip,
+        address: address,
+        orderItemList: cartItemList,
+        userId: user.user.id,
+      },
+    };
+
+    GlobalApi.createOrder(payload, jwt).then((res) => {
+      console.log(res);
+      toast("Order placed successfully");
+
+      cartItemList.forEach((item, index) => {
+        GlobalApi.deleteCartItem(item.id).then((res) => {});
+      });
+      // used .replace becauuuse if user tries to go back to previous page he won't be landed back to order page
+      router.replace("/order-confirmation");
+    });
+  };
 
   return (
     <section>
@@ -113,21 +144,19 @@ const Checkout = () => {
               Subtotal : <span>₹{subtotal}</span>
             </h2>
             <hr></hr>
-
             <h2 className="flex justify-between">
               Delivery : <span>{subtotal < 300 ? "₹120/-" : "Free"}</span>
             </h2>
             <h2 className="flex justify-between">
               Tax (9%) : <span>₹{subtotal * 0.09}</span>
             </h2>
-
             <hr></hr>
-
             <h2 className="flex justify-between font-bold">
               Total : <span>${totalAmount}</span>
             </h2>
 
             <PayPalButtons
+              disabled={!(username && email && address && zip)}
               forceReRender={[totalAmount]}
               style={{ layout: "horizontal" }}
               onApprove={onApprove}
